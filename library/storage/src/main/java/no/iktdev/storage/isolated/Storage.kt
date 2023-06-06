@@ -2,8 +2,8 @@ package no.iktdev.storage.isolated
 
 import android.content.Context
 import android.content.ContextWrapper
-import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -36,21 +36,44 @@ abstract class Storage(val context: Context)
                 false
             }
         }
+
+        inline fun <reified T> fromJson(json: String, type: Type): T?
+        {
+            try {
+                return Gson().fromJson<T>(json, type)
+            } catch (e: Exception) {
+                Log.e(this::class.java.simpleName, "Library error ${e.message}")
+                e.printStackTrace()
+            }
+            return null
+        }
     }
 
     inline fun <reified T> isStringType(): Boolean {
         return (object: TypeToken<T>() {}.type == object: TypeToken<String>() {}.type)
     }
 
-    inline fun <reified T> fromJson(json: String, type: Type): T?
-    {
-        try {
-            return Gson().fromJson(json, type)
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return null;
+    /**
+     * @return true if exists or file + path created
+     */
+    @Suppress("canBePrivate")
+    fun File.createFileIfNotExists(): Boolean {
+        val parent = this.parentFile ?: return false
+        if (!parent.createDirectoriesIfNotExists()) return false
+        return if (!this.exists()) this.createNewFile() else true
+    }
+
+    /**
+     * Creates directories if not exists
+     * @return true if exists or created
+     */
+    @Suppress("canBePrivate")
+    fun File.createDirectoriesIfNotExists(): Boolean {
+        return if (this.exists() && this.isDirectory) true else this.mkdirs()
+    }
+
+    fun File.addTo(part: String): File {
+        return File(this, part)
     }
 
 
@@ -62,14 +85,7 @@ abstract class Storage(val context: Context)
      */
     fun getStorageFile(location: StorageLocation, path: Array<String>): File {
         var file: File = if (location == StorageLocation.EXTERNAL && isExternalStorageAvailable(context)) getExternalFolder(context) else getInternalFolder(context)
-        path.map {
-            file = File(file, it)
-            if (!it.contains(".")) {
-                if (!file.exists()) {
-                    file.mkdirs()
-                }
-            }
-        }
+        path.forEach { part -> file = File(file, part) }
         return file
     }
 
@@ -77,8 +93,6 @@ abstract class Storage(val context: Context)
         val file: File = File(absolutePath)
         return if (file.exists()) file else null
     }
-
-
 
 
     fun Write(file: File, data: ByteArray) {
@@ -111,7 +125,7 @@ abstract class Storage(val context: Context)
         }
         inputStream.close()
         reader.close()
-        return builder.toString().filter { it.isISOControl() }
+        return builder.toString().filter { !it.isISOControl() }
     }
 
 

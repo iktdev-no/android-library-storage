@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+    namespace 'no.iktdev.storage'
     compileSdk androidSdkVersion
 
     defaultConfig {
@@ -14,6 +15,11 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildFeatures {
+        viewBinding true
+        dataBinding true
     }
 
     buildTypes {
@@ -29,7 +35,11 @@ android {
     kotlinOptions {
         jvmTarget = kotlinJvmTarget
     }
-    namespace 'no.iktdev.storage'
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.md'
+        exclude '/META-INF/LICENSE-.*'
+    }
 }
 
 dependencies {
@@ -41,10 +51,16 @@ dependencies {
     implementation layoutLibraries.constraint
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    testImplementation("org.assertj:assertj-core:3.22.0")
+    androidTestImplementation("org.assertj:assertj-core:3.22.0")
 
     implementation 'com.google.code.gson:gson:2.9.0'
+
+    //androidTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
 
 }
 
@@ -54,7 +70,7 @@ afterEvaluate {
             release(MavenPublication) {
                 groupId "no.iktdev.android"
                 artifactId "storage"
-                version '0.0.11'
+                version '1.0.0-alpha4'
 
                 artifact(bundleReleaseAar)
             }

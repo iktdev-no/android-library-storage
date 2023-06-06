@@ -7,7 +7,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.Charset
 
-abstract class Writer(context: Context) : Storage(context) {
+abstract class Writer(context: Context, val createFileIfNotExists: Boolean = true) : Storage(context) {
 
     /**
      * Use type Any if you want to skip Gson encoding, and do this later
@@ -17,6 +17,12 @@ abstract class Writer(context: Context) : Storage(context) {
     fun writeWith(data: Any, path: Array<String>, location: StorageLocation = StorageLocation.INTERNAL)
     {
         val file = getStorageFile(location, path)
+        if (createFileIfNotExists) {
+            val success = file.createFileIfNotExists()
+            if (!success) {
+                throw RuntimeException("Writer createFileIfNotExists is $createFileIfNotExists, but the createFileIfNotExists operation failed")
+            }
+        }
         when (data) {
             is ByteArray -> {
                 Write(file, data)
