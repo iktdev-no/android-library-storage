@@ -142,6 +142,9 @@ abstract class Storage(val context: Context)
             it.isFile
         }.toList()
     }
+    fun getDirectoriesOf(target: File): List<File> {
+        return target.listFiles { it -> it.isDirectory }?.toList() ?: emptyList()
+    }
 
 
     abstract class Repository(context: Context) {
