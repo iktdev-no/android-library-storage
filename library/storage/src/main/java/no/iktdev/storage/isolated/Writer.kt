@@ -14,8 +14,7 @@ abstract class Writer(context: Context, val createFileIfNotExists: Boolean = tru
      * If path does not exists, path will be created based on the path
      * @param path Full path to file
      */
-    fun writeWith(data: Any, path: Array<String>, location: StorageLocation = StorageLocation.INTERNAL)
-    {
+    fun writeWith(data: Any, path: Array<String>, location: StorageLocation = StorageLocation.INTERNAL): File {
         val file = getStorageFile(location, path)
         if (createFileIfNotExists) {
             val success = file.createFileIfNotExists()
@@ -36,5 +35,6 @@ abstract class Writer(context: Context, val createFileIfNotExists: Boolean = tru
                 Write(file, enc)
             }
         }
+        return file
     }
 }
