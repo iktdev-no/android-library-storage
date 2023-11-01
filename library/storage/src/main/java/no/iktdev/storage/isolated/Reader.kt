@@ -13,7 +13,7 @@ abstract class Reader(context: Context) : Storage(context) {
         return fromJson(data, typeToken)
     }
 
-    inline fun <reified T> readWith(file: File,) : T? {
+    inline fun <reified T> readWith(file: File) : T? {
         val typeToken = object: TypeToken<T>() {}.type
         val data = readString(file) ?: return null
         return fromJson(data, typeToken)
@@ -28,12 +28,11 @@ abstract class Reader(context: Context) : Storage(context) {
         return Read(file)
     }
 
-    fun readString(file: File, location: StorageLocation = StorageLocation.INTERNAL): String? {
+    fun readString(file: File): String? {
         if (!file.exists()) {
             Log.e(this::class.java.simpleName, "Library - File ${file.absolutePath} could not be found")
             return null
         }
         return Read(file)
     }
-
 }

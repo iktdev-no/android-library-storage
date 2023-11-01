@@ -16,6 +16,10 @@ abstract class Writer(context: Context, val createFileIfNotExists: Boolean = tru
      */
     fun writeWith(data: Any, path: Array<String>, location: StorageLocation = StorageLocation.INTERNAL): File {
         val file = getStorageFile(location, path)
+        return writeWith(data, file)
+    }
+
+    fun writeWith(data: Any, file: File): File {
         if (createFileIfNotExists) {
             val success = file.createFileIfNotExists()
             if (!success) {
