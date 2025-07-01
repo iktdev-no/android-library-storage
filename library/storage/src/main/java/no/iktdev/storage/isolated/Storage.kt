@@ -49,33 +49,6 @@ abstract class Storage(val context: Context)
         }
     }
 
-    inline fun <reified T> isStringType(): Boolean {
-        return (object: TypeToken<T>() {}.type == object: TypeToken<String>() {}.type)
-    }
-
-    /**
-     * @return true if exists or file + path created
-     */
-    @Suppress("canBePrivate")
-    fun File.createFileIfNotExists(): Boolean {
-        val parent = this.parentFile ?: return false
-        if (!parent.createDirectoriesIfNotExists()) return false
-        return if (!this.exists()) this.createNewFile() else true
-    }
-
-    /**
-     * Creates directories if not exists
-     * @return true if exists or created
-     */
-    @Suppress("canBePrivate")
-    fun File.createDirectoriesIfNotExists(): Boolean {
-        return if (this.exists() && this.isDirectory) true else this.mkdirs()
-    }
-
-    fun File.addTo(part: String): File {
-        return File(this, part)
-    }
-
 
     /**
      * This method will get a file based on the path
@@ -96,6 +69,9 @@ abstract class Storage(val context: Context)
 
 
     fun Write(file: File, data: ByteArray) {
+        if (!file.exists()) {
+            file.createNewFile()
+        }
         file.setWritable(true)
         val fos = FileOutputStream(file)
         fos.write(data)
@@ -135,15 +111,6 @@ abstract class Storage(val context: Context)
 
     fun Exists(target: File): Boolean {
         return (target.exists())
-    }
-
-    fun allFiles(target: File): List<File> {
-        return target.walk().filter {
-            it.isFile
-        }.toList()
-    }
-    fun getDirectoriesOf(target: File): List<File> {
-        return target.listFiles { it -> it.isDirectory }?.toList() ?: emptyList()
     }
 
 
@@ -190,11 +157,12 @@ abstract class Storage(val context: Context)
     }
 
     class External(context: Context): Repository(context) {
+        val internal = ContextWrapper(context).filesDir
         var data: File? = null
         private val filter = Pattern.compile("(emulated|self)")
         init {
             val files = ContextCompat.getExternalFilesDirs(context, null)
-            files.forEach { file: File ->
+            files.filter { it.absolutePath != internal.absolutePath }.forEach { file: File ->
                 if (!filter.matcher(file.absolutePath).find()) {
                     if (file.parentFile != null) {
                         @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")

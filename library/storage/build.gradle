@@ -70,7 +70,7 @@ afterEvaluate {
             release(MavenPublication) {
                 groupId "no.iktdev.android"
                 artifactId "storage"
-                version '1.0.0-alpha4'
+                version '1.0.0-internal8'
 
                 artifact(bundleReleaseAar)
             }

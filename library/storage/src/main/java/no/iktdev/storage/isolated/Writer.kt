@@ -3,6 +3,7 @@ package no.iktdev.storage.isolated
 import android.content.Context
 import android.location.Location
 import com.google.gson.Gson
+import no.iktdev.storage.appstore.createIfNotExists
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.Charset
@@ -21,7 +22,7 @@ abstract class Writer(context: Context, val createFileIfNotExists: Boolean = tru
 
     fun writeWith(data: Any, file: File): File {
         if (createFileIfNotExists) {
-            val success = file.createFileIfNotExists()
+            val success = file.createIfNotExists()?.exists() ?: false
             if (!success) {
                 throw RuntimeException("Writer createFileIfNotExists is $createFileIfNotExists, but the createFileIfNotExists operation failed")
             }
